@@ -204,13 +204,19 @@ Provide:
       }
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts }] })
         });
         const data = await res.json();
-        out.textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data, null, 2);
+        if (!res.ok) throw new Error(data?.error?.message || `Gemini request failed (HTTP ${res.status})`);
+        const answer = (data?.candidates?.[0]?.content?.parts || [])
+          .filter(part => !part.thought && typeof part.text === 'string')
+          .map(part => part.text)
+          .join('\n')
+          .trim();
+        out.textContent = answer || data?.promptFeedback?.blockReason || 'Gemini returned no text.';
       } catch (err) {
         out.textContent = 'Error running scan: ' + err.message;
       }
