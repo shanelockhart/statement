@@ -3,88 +3,102 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Statement Analyst | Pixel Forensics</title>
-  <meta name="theme-color" content="#0f172a" />
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Statement Analyst","short_name":"Analyst","start_url":"./","display":"standalone","background_color":"%23090d16","theme_color":"%230f172a","icons":[{"src":"https://placehold.co/192x192/0f172a/38bdf8.png?text=SA","sizes":"192x192","type":"image/png"},{"src":"https://placehold.co/512x512/0f172a/38bdf8.png?text=SA","sizes":"512x512","type":"image/png"}]}'>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Statement Analyst</title>
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="manifest" href="./manifest.webmanifest" />
   <style>
-    body { background-color: #090d16; color: #e2e8f0; font-family: system-ui, sans-serif; }
-    .mark-hedge { background: rgba(245, 158, 11, 0.25); border-bottom: 2px solid #f59e0b; padding: 0 2px; }
-    .mark-bridge { background: rgba(239, 68, 68, 0.28); border-bottom: 2px solid #ef4444; padding: 0 2px; }
-    .mark-pronoun { background: rgba(56, 189, 248, 0.22); border-bottom: 2px solid #38bdf8; padding: 0 2px; }
+    :root { color-scheme: dark; --bg:#090d16; --panel:#111b2d; --line:#29364c; --text:#e7eef8; --muted:#aab8cb; --accent:#38bdf8; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,sans-serif; }
+    .wrap { width:min(100% - 32px,760px); margin:0 auto; padding:24px 0 60px; }
+    header { margin-bottom:22px; }
+    h1 { margin:0; color:var(--accent); font-size:1.35rem; letter-spacing:.04em; text-transform:uppercase; }
+    h2 { margin:0; font-size:1.18rem; }
+    p { margin:6px 0 0; color:var(--muted); }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px; margin:16px 0; }
+    .intro { font-size:.94rem; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; }
+    .button, button { min-height:44px; border:1px solid #3a4c66; border-radius:9px; background:#213149; color:var(--text); padding:10px 16px; font:inherit; cursor:pointer; }
+    .button:hover, button:hover { background:#2b405d; }
+    .primary { display:block; width:100%; background:#087db0; border-color:#087db0; font-weight:700; font-size:1rem; }
+    .primary:hover { background:#0c9bcf; }
+    .button input { display:none; }
+    .hint { font-size:.88rem; }
+    label.field { display:block; margin:12px 0 8px; font-weight:650; }
+    textarea, input[type=password] { display:block; width:100%; background:#080e1a; color:var(--text); border:1px solid #3a4c66; border-radius:9px; padding:12px; font:inherit; }
+    textarea { min-height:165px; resize:vertical; }
+    textarea:focus, input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+    audio { width:100%; margin-top:10px; }
+    .filename { overflow-wrap:anywhere; }
+    details { border-top:1px solid var(--line); margin-top:18px; padding-top:14px; }
+    summary { cursor:pointer; color:var(--accent); font-weight:600; }
+    details p { font-size:.9rem; }
+    .counts { display:flex; flex-wrap:wrap; gap:6px 16px; margin:15px 0; color:var(--muted); font-size:.9rem; }
+    .preview, .result { white-space:pre-wrap; overflow-wrap:anywhere; padding:15px; background:#080e1a; border:1px solid var(--line); border-radius:9px; margin-top:14px; }
+    .mark-hedge { background:rgba(245,158,11,.25); border-bottom:2px solid #f59e0b; }
+    .mark-bridge { background:rgba(239,68,68,.25); border-bottom:2px solid #ef4444; }
+    .mark-pronoun { background:rgba(56,189,248,.22); border-bottom:2px solid #38bdf8; }
+    .settings-row { display:flex; align-items:center; gap:10px; margin-top:12px; }
+    .settings-row input { flex:1; min-width:0; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    [hidden] { display:none!important; }
+    @media(max-width:520px) { .wrap { width:min(100% - 24px,760px); padding-top:18px; } .panel { padding:17px; } .actions .button { flex:1; text-align:center; } }
   </style>
 </head>
-<body class="min-h-screen p-4 md:p-6 max-w-6xl mx-auto space-y-5">
-  <header class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
-    <div>
-      <h1 class="text-lg font-bold tracking-wider uppercase text-sky-400">Statement Analyst</h1>
-      <p class="text-xs text-slate-400" id="statusBanner">Ready for Pixel 9 Pro Recorder Share or Direct File Load</p>
-    </div>
-    <div class="flex items-center gap-2 w-full sm:w-auto">
-      <input id="apiKeyInput" type="password" placeholder="Paste Gemini API Key..." class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs w-full sm:w-64 focus:outline-none focus:border-sky-500" />
-      <button onclick="saveKey()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">Save</button>
-    </div>
-  </header>
-
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-    <section class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono uppercase tracking-wider text-sky-400">Track 01 // Written Statement (SCAN)</span>
-        <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1 rounded border border-slate-700">
-          Import .TXT
-          <input type="file" accept=".txt,text/plain" class="hidden" onchange="handleTxtUpload(event)" />
-        </label>
-      </div>
-      <textarea id="transcriptInput" rows="7" oninput="runLocalScan()" placeholder="Shared transcript from Pixel Recorder will appear here automatically, or paste/type statement..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm focus:outline-none focus:border-sky-500"></textarea>
-      <div class="text-xs text-slate-400 flex gap-3 flex-wrap">
-        <span><b class="text-amber-400" id="hedgeCount">0</b> Hedging/Qualifiers</span>
-        <span><b class="text-red-400" id="bridgeCount">0</b> Missing Time Bridges</span>
-        <span><b class="text-sky-400" id="pronounCount">0</b> 1st-Person Pronouns</span>
-      </div>
-      <div id="highlightedOutput" class="bg-slate-950/80 border border-slate-800/80 rounded-lg p-3 text-sm min-h-[110px] leading-relaxed whitespace-pre-wrap"></div>
-    </section>
-
-    <section class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
-      <div class="flex items-center justify-between">
-        <span class="text-xs font-mono uppercase tracking-wider text-emerald-400">Track 02 // Acoustic Forensics (.m4a)</span>
-        <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-xs px-2.5 py-1 rounded border border-slate-700">
-          Load Audio (.m4a)
-          <input type="file" accept="audio/*,.m4a,.wav,.mp3" class="hidden" onchange="handleAudioUpload(event)" />
-        </label>
-      </div>
-      <div id="audioFileLabel" class="text-xs font-mono text-slate-400 truncate">No audio file loaded</div>
-      <audio id="audioPlayer" controls class="w-full h-10"></audio>
-      <canvas id="freqCanvas" width="500" height="130" class="w-full bg-slate-950 border border-slate-800 rounded-lg"></canvas>
-      <div class="flex gap-2">
-        <button onclick="setSpeed(0.5)" class="bg-slate-800 text-xs px-2.5 py-1 rounded">0.5x Micro-Pause</button>
-        <button onclick="setSpeed(1.0)" class="bg-slate-800 text-xs px-2.5 py-1 rounded">1.0x Normal</button>
-        <button onclick="setSpeed(1.5)" class="bg-slate-800 text-xs px-2.5 py-1 rounded">1.5x Fast</button>
-      </div>
-    </section>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Statement Analyst</h1>
+      <p id="statusBanner" class="intro" role="status">Add audio or a transcript to begin.</p>
+      <details id="settings">
+        <summary>Gemini key settings</summary>
+        <p class="hint">Your key is saved in this browser on this device.</p>
+        <div class="settings-row">
+          <input id="apiKeyInput" type="password" autocomplete="off" aria-label="Gemini API key" placeholder="Paste Gemini API key" />
+          <button type="button" onclick="saveKey()">Save</button>
+        </div>
+        <p id="keyStatus" class="hint" role="status"></p>
+      </details>
+    </header>
+    <main>
+      <section class="panel" aria-labelledby="intakeTitle">
+        <h2 id="intakeTitle">1. Add your material</h2>
+        <p class="intro">Recorder exports audio and transcripts separately. Load either one, or add both.</p>
+        <div class="actions">
+          <label class="button">Load recording <input type="file" accept="audio/*,.m4a,.wav,.mp3" onchange="handleAudioUpload(event)" /></label>
+          <label class="button">Load transcript <input type="file" accept=".txt,text/plain" onchange="handleTxtUpload(event)" /></label>
+        </div>
+        <div id="audioPanel" hidden>
+          <p id="audioFileLabel" class="filename">No recording loaded</p>
+          <audio id="audioPlayer" controls preload="metadata"></audio>
+        </div>
+        <label class="field" for="transcriptInput">Transcript</label>
+        <textarea id="transcriptInput" oninput="runLocalScan()" placeholder="Paste your transcript here, or load a .txt file"></textarea>
+        <details id="textHighlights" hidden>
+          <summary>Show text highlights</summary>
+          <p>These are simple word matches, not conclusions about truthfulness.</p>
+          <div class="counts">
+            <span><b id="hedgeCount">0</b> qualifiers</span><span><b id="bridgeCount">0</b> time phrases</span><span><b id="pronounCount">0</b> pronouns</span>
+          </div>
+          <div id="highlightedOutput" class="preview"></div>
+        </details>
+      </section>
+      <section class="panel" aria-labelledby="analyzeTitle">
+        <h2 id="analyzeTitle">2. Analyze</h2>
+        <p class="intro">Review possible follow-up questions. Audio or text is sent to Gemini only when you tap Analyze.</p>
+        <button id="deepScanBtn" class="primary" onclick="runGeminiDeepScan()">Analyze statement</button>
+        <div id="aiResultBox" class="result" role="status" hidden></div>
+      </section>
+    </main>
   </div>
-
-  <section class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
-    <div class="flex items-center justify-between flex-wrap gap-2">
-      <div>
-        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Multimodal Forensic Deep Scan</h2>
-        <p class="text-xs text-slate-400">Combines written linguistic structure + raw vocal stress/latency cues via Gemini</p>
-      </div>
-      <button id="deepScanBtn" onclick="runGeminiDeepScan()" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs px-4 py-2 rounded-lg">
-        Run Deep Scan
-      </button>
-    </div>
-    <div id="aiResultBox" class="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm whitespace-pre-wrap text-slate-300 min-h-[120px]">Awaiting statement transcript and/or audio payload...</div>
-  </section>
-
   <script>
     let currentAudioFile = null;
-    let audioCtx, analyser, sourceNode;
 
     const savedKey = localStorage.getItem('SA_GEMINI_KEY');
     if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
     function saveKey() {
       localStorage.setItem('SA_GEMINI_KEY', document.getElementById('apiKeyInput').value.trim());
-      alert('API Key saved locally on device.');
+      document.getElementById('keyStatus').textContent = 'Key saved on this device.';
     }
 
     function handleTxtUpload(e) {
@@ -93,6 +107,7 @@
       f.text().then(t => {
         document.getElementById('transcriptInput').value = t;
         runLocalScan();
+        document.getElementById('statusBanner').textContent = 'Transcript loaded. Add audio separately if you want both analyzed.';
       });
     }
 
@@ -103,54 +118,54 @@
 
     function loadAudioBlob(file) {
       currentAudioFile = file;
-      document.getElementById('audioFileLabel').textContent = `Loaded: ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+      document.getElementById('audioPanel').hidden = false;
+      document.getElementById('audioFileLabel').textContent = `Recording: ${file.name}`;
       const player = document.getElementById('audioPlayer');
+      if (player.src.startsWith('blob:')) URL.revokeObjectURL(player.src);
       player.src = URL.createObjectURL(file);
-      initVisualizer(player);
+      document.getElementById('statusBanner').textContent = 'Audio loaded. Add the transcript separately if you want both analyzed.';
     }
 
-    function setSpeed(rate) {
-      document.getElementById('audioPlayer').playbackRate = rate;
-    }
-
-    function initVisualizer(player) {
-      if (audioCtx) return;
-      player.addEventListener('play', () => {
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 256;
-          sourceNode = audioCtx.createMediaElementSource(player);
-          sourceNode.connect(analyser);
-          analyser.connect(audioCtx.destination);
-          drawSpectrum();
+    async function receiveSharedRecording() {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        await navigator.serviceWorker.register('./share-worker.js');
+        const id = new URL(location.href).searchParams.get('shared');
+        if (!id || !/^[a-f0-9-]{36}$/.test(id)) return;
+        const cache = await caches.open('statement-shares-v1');
+        const base = new URL('./shared/', location.href);
+        const metaKey = new URL(id + '/meta', base);
+        const metaResponse = await cache.match(metaKey);
+        if (!metaResponse) return;
+        const meta = await metaResponse.json();
+        const audioKey = new URL(id + '/audio', base);
+        const textKey = new URL(id + '/transcript', base);
+        const audioResponse = await cache.match(audioKey);
+        const textResponse = await cache.match(textKey);
+        if (textResponse) {
+          document.getElementById('transcriptInput').value = await textResponse.text();
+          runLocalScan();
+        } else if (meta.text) {
+          document.getElementById('transcriptInput').value = meta.text;
+          runLocalScan();
         }
-      }, { once: true });
-    }
-
-    function drawSpectrum() {
-      requestAnimationFrame(drawSpectrum);
-      if (!analyser) return;
-      const canvas = document.getElementById('freqCanvas');
-      const ctx = canvas.getContext('2d');
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / bufferLength) * 2.2;
-      let x = 0;
-      for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height;
-        ctx.fillStyle = dataArray[i] > 180 ? '#ef4444' : '#38bdf8';
-        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-        x += barWidth + 1;
+        if (audioResponse) {
+          loadAudioBlob(new File([await audioResponse.blob()], meta.audioName || 'recording.m4a', { type: meta.audioType || 'audio/mp4' }));
+        }
+        document.getElementById('statusBanner').textContent = audioResponse
+          ? 'Recording received. Recorder shares its transcript separately.'
+          : 'Transcript received. Recorder shares its audio separately.';
+        await Promise.all([metaKey, audioKey, textKey].map(key => cache.delete(key)));
+        history.replaceState(null, '', location.pathname);
+      } catch (err) {
+        document.getElementById('statusBanner').textContent = 'Share could not be loaded. Use Load recording or Load transcript instead.';
       }
     }
+    receiveSharedRecording();
 
     function runLocalScan() {
       const raw = document.getElementById('transcriptInput').value;
+      document.getElementById('textHighlights').hidden = !raw.trim();
       if (!raw.trim()) {
         document.getElementById('highlightedOutput').innerHTML = '';
         return;
@@ -186,7 +201,8 @@
       if (!text && !currentAudioFile) return alert('Load a transcript or audio file first.');
 
       const out = document.getElementById('aiResultBox');
-      out.textContent = 'Running forensic linguistic & vocal stress analysis...';
+      out.hidden = false;
+      out.textContent = 'Analyzing...';
 
       const parts = [{
         text: `You are an expert criminal investigator trained in Scientific Content Analysis (SCAN), cognitive interview techniques, and vocal stress/deception detection. Analyze the provided statement transcript and/or audio recording.
@@ -204,13 +220,19 @@ Provide:
       }
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contents: [{ parts }] })
         });
         const data = await res.json();
-        out.textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data, null, 2);
+        if (!res.ok) throw new Error(data?.error?.message || `Gemini request failed (HTTP ${res.status})`);
+        const answer = (data?.candidates?.[0]?.content?.parts || [])
+          .filter(part => !part.thought && typeof part.text === 'string')
+          .map(part => part.text)
+          .join('\n')
+          .trim();
+        out.textContent = answer || data?.promptFeedback?.blockReason || 'Gemini returned no text.';
       } catch (err) {
         out.textContent = 'Error running scan: ' + err.message;
       }
@@ -218,3 +240,4 @@ Provide:
   </script>
 </body>
 </html>
+
