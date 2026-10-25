@@ -21,6 +21,13 @@ body{background:var(--ol-bg)!important;color:var(--ol-text)!important;font-famil
 .ol-kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ol-bright);font-weight:800}.ol-heading{font-size:18px;letter-spacing:-.01em;font-weight:800;color:#fff;line-height:1.2}.ol-subheading{font-size:11px;color:var(--ol-muted);margin-top:3px}
 .ol-nav{display:flex;flex-wrap:wrap;gap:7px}.ol-nav-item{font-size:12px;font-weight:700;color:var(--ol-muted);border:1px solid var(--ol-line);background:var(--ol-panel-2);border-radius:8px;padding:9px 11px;text-decoration:none}
 .ol-nav-item:hover,.ol-nav-item.current{color:var(--ol-bright);border-color:#1a56db66;background:#1a56db22}
+.ol-key-details{background:var(--ol-panel-2);border:1px solid var(--ol-line);border-radius:9px}
+.ol-key-summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;list-style:none;color:var(--ol-text);font-size:12px;font-weight:750}
+.ol-key-summary::-webkit-details-marker{display:none}
+.ol-key-summary::after{content:'▾';color:var(--ol-bright)}
+.ol-key-details[open] .ol-key-summary::after{content:'▴'}
+.ol-key-summary #keyStatus{margin-left:auto;color:var(--ol-bright);font-size:11px;font-weight:600}
+.ol-key-hidden-controls{padding:12px;border-top:1px solid var(--ol-line)}
 .ol-key{min-width:235px;flex:1;max-width:390px}.ol-key-label{font-size:10px;display:flex;justify-content:space-between;color:var(--ol-muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}#keyStatus{color:var(--ol-bright)}.ol-key-controls{display:flex;gap:6px}
 #apiKeyInput{min-width:0;flex:1;border:1px solid var(--ol-line);background:var(--ol-bg);color:var(--ol-text);padding:9px 10px;border-radius:8px;font-size:12px}.ol-save,.ol-clear{border:1px solid var(--ol-line);background:var(--ol-panel);color:var(--ol-text);padding:7px 10px;border-radius:8px;font-size:11px;cursor:pointer}.ol-save{background:var(--ol-blue);border-color:#2563eb;color:#fff;font-weight:700}.ol-clear:hover{color:#ed6a5e}
 section{background:linear-gradient(180deg,var(--ol-panel),var(--ol-panel-2))!important;border:1px solid var(--ol-line)!important;box-shadow:0 14px 36px #0006}
@@ -36,8 +43,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
   <header class="ol-header">
   <div class="ol-brand"><div class="ol-logo" aria-hidden="true">OL</div><div><div class="ol-kicker">Operators Logic</div><h1 class="ol-heading">Interview Analyst</h1><p class="ol-subheading" id="statusBanner">Pixel Recorder share, transcripts and audio review</p></div></div>
   <nav class="ol-nav" aria-label="Application modules"><a href="https://operatorslogicdorktool.netlify.app/" class="ol-nav-item">Research Pro</a><a href="./" class="ol-nav-item current" aria-current="page">Interview Analyst</a></nav>
-  <div class="ol-key"><label class="ol-key-label" for="apiKeyInput">Gemini API key <span id="keyStatus" aria-live="polite">Not set</span></label>
-    <div class="ol-key-controls"><input id="apiKeyInput" type="password" placeholder="Enter Gemini key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveKey()" class="ol-save">Save</button><button type="button" onclick="clearKey()" class="ol-clear">Clear</button></div></div>
+  <details class="ol-key ol-key-details" id="interviewKeySettings">
+    <summary class="ol-key-summary">API Key Settings <span id="keyStatus" aria-live="polite">Not set</span></summary>
+    <div class="ol-key-hidden-controls">
+      <label class="ol-key-label" for="apiKeyInput">Gemini API key</label>
+      <div class="ol-key-controls"><input id="apiKeyInput" type="password" placeholder="Paste new Gemini key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveKey()" class="ol-save">Save</button><button type="button" onclick="clearKey()" class="ol-clear">Clear</button></div>
+      <p class="ol-notice" style="margin-top:8px">Saved on this browser for both Operators Logic tools. Your key stays hidden after saving.</p>
+    </div>
+  </details>
 </header>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -97,13 +110,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 
     // Shared with Research Pro when both pages are served from one website.
     const KEY_STORAGE = 'SA_GEMINI_KEY';
-    const savedKey = localStorage.getItem(KEY_STORAGE);
-    if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+    // Leave the input blank; do not expose saved keys inside rendered fields.
     function updateKeyStatus(){document.getElementById('keyStatus').textContent=localStorage.getItem(KEY_STORAGE)?'Ready':'Not set';}
     function saveKey() {
       const key = document.getElementById('apiKeyInput').value.trim();
       if (!key) return alert('Enter a Gemini API key first.');
       localStorage.setItem(KEY_STORAGE, key);
+      document.getElementById('apiKeyInput').value = '';
       updateKeyStatus();
       alert('Key saved for this website. For one key across both tools, open the unified Operators Logic site.');
     }
@@ -208,7 +221,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
     }
 
     async function runGeminiDeepScan() {
-      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      const apiKey = document.getElementById('apiKeyInput').value.trim() || localStorage.getItem(KEY_STORAGE) || '';
       if (!apiKey) return alert('Paste your Gemini API Key in the top bar first.');
       const text = document.getElementById('transcriptInput').value.trim();
       if (!text && !currentAudioFile) return alert('Load a transcript or audio file first.');
