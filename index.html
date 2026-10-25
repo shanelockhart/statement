@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Interview Analyst | Operators Logic</title>
   <meta name="theme-color" content="#0a0e14" />
-  <link rel="manifest" href='data:application/manifest+json,{"name":"Statement Analyst","short_name":"Analyst","start_url":"./","display":"standalone","background_color":"%23090d16","theme_color":"%230f172a","icons":[{"src":"https://placehold.co/192x192/0f172a/38bdf8.png?text=SA","sizes":"192x192","type":"image/png"},{"src":"https://placehold.co/512x512/0f172a/38bdf8.png?text=SA","sizes":"512x512","type":"image/png"}]}'>
+  <link rel="manifest" href='data:application/manifest+json,{"name":"Operators Logic Interview Analyst","short_name":"OL Interview","start_url":"./","display":"standalone","background_color":"%230a0e14","theme_color":"%230a0e14","icons":[{"src":"https://placehold.co/192x192/0a0e14/3b82f6.png?text=OL","sizes":"192x192","type":"image/png"},{"src":"https://placehold.co/512x512/0a0e14/3b82f6.png?text=OL","sizes":"512x512","type":"image/png"}]}'>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { background-color: #090d16; color: #e2e8f0; font-family: system-ui, sans-serif; }
@@ -105,7 +105,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
       if (!key) return alert('Enter a Gemini API key first.');
       localStorage.setItem(KEY_STORAGE, key);
       updateKeyStatus();
-      alert('Gemini key saved for both modules on this website.');
+      alert('Key saved for this website. For one key across both tools, open the unified Operators Logic site.');
     }
     function clearKey(){
       if(!confirm('Remove the saved Gemini key from this browser?'))return;
