@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Statement Analyst | Pixel Forensics</title>
-  <meta name="theme-color" content="#0f172a" />
+  <title>Interview Analyst | Operators Logic</title>
+  <meta name="theme-color" content="#0a0e14" />
   <link rel="manifest" href='data:application/manifest+json,{"name":"Statement Analyst","short_name":"Analyst","start_url":"./","display":"standalone","background_color":"%23090d16","theme_color":"%230f172a","icons":[{"src":"https://placehold.co/192x192/0f172a/38bdf8.png?text=SA","sizes":"192x192","type":"image/png"},{"src":"https://placehold.co/512x512/0f172a/38bdf8.png?text=SA","sizes":"512x512","type":"image/png"}]}'>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -13,18 +13,32 @@
     .mark-bridge { background: rgba(239, 68, 68, 0.28); border-bottom: 2px solid #ef4444; padding: 0 2px; }
     .mark-pronoun { background: rgba(56, 189, 248, 0.22); border-bottom: 2px solid #38bdf8; padding: 0 2px; }
   </style>
+<style id="operators-logic-theme">
+:root{--ol-bg:#0a0e14;--ol-panel:#11161f;--ol-panel-2:#0d1219;--ol-line:#27313f;--ol-blue:#1a56db;--ol-bright:#3b82f6;--ol-text:#e6edf6;--ol-muted:#8a97a8;color-scheme:dark}
+body{background:var(--ol-bg)!important;color:var(--ol-text)!important;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.ol-header{background:#0a0e14ee!important;border:1px solid var(--ol-line)!important;border-radius:14px;padding:15px 17px!important;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.ol-brand{display:flex;align-items:center;gap:12px}.ol-logo{width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;color:var(--ol-bright);background:#1a56db22;border:1px solid #1a56db55;border-radius:9px;font-size:17px;font-weight:800}
+.ol-kicker{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ol-bright);font-weight:800}.ol-heading{font-size:18px;letter-spacing:-.01em;font-weight:800;color:#fff;line-height:1.2}.ol-subheading{font-size:11px;color:var(--ol-muted);margin-top:3px}
+.ol-nav{display:flex;flex-wrap:wrap;gap:7px}.ol-nav-item{font-size:12px;font-weight:700;color:var(--ol-muted);border:1px solid var(--ol-line);background:var(--ol-panel-2);border-radius:8px;padding:9px 11px;text-decoration:none}
+.ol-nav-item:hover,.ol-nav-item.current{color:var(--ol-bright);border-color:#1a56db66;background:#1a56db22}
+.ol-key{min-width:235px;flex:1;max-width:390px}.ol-key-label{font-size:10px;display:flex;justify-content:space-between;color:var(--ol-muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}#keyStatus{color:var(--ol-bright)}.ol-key-controls{display:flex;gap:6px}
+#apiKeyInput{min-width:0;flex:1;border:1px solid var(--ol-line);background:var(--ol-bg);color:var(--ol-text);padding:9px 10px;border-radius:8px;font-size:12px}.ol-save,.ol-clear{border:1px solid var(--ol-line);background:var(--ol-panel);color:var(--ol-text);padding:7px 10px;border-radius:8px;font-size:11px;cursor:pointer}.ol-save{background:var(--ol-blue);border-color:#2563eb;color:#fff;font-weight:700}.ol-clear:hover{color:#ed6a5e}
+section{background:linear-gradient(180deg,var(--ol-panel),var(--ol-panel-2))!important;border:1px solid var(--ol-line)!important;box-shadow:0 14px 36px #0006}
+textarea,#highlightedOutput,#aiResultBox,#freqCanvas{background:var(--ol-bg)!important;border-color:var(--ol-line)!important;color:var(--ol-text)!important}
+.text-sky-400,.text-emerald-400{color:var(--ol-bright)!important}button.bg-sky-600{background:var(--ol-blue)!important}button.bg-sky-600:hover{background:#1d4ed8!important}
+button.bg-slate-800,label.bg-slate-800{background:var(--ol-panel-2)!important;border-color:var(--ol-line)!important;color:var(--ol-text)!important}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--ol-bright)!important;outline-offset:2px}
+.ol-notice{color:var(--ol-muted);font-size:11px;line-height:1.5}
+@media(max-width:700px){.ol-header{align-items:stretch}.ol-key{max-width:none;flex-basis:100%}.ol-nav{order:3;width:100%}.ol-nav-item{flex:1;text-align:center}}
+</style>
 </head>
 <body class="min-h-screen p-4 md:p-6 max-w-6xl mx-auto space-y-5">
-  <header class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 p-4 rounded-xl">
-    <div>
-      <h1 class="text-lg font-bold tracking-wider uppercase text-sky-400">Statement Analyst</h1>
-      <p class="text-xs text-slate-400" id="statusBanner">Ready for Pixel 9 Pro Recorder Share or Direct File Load</p>
-    </div>
-    <div class="flex items-center gap-2 w-full sm:w-auto">
-      <input id="apiKeyInput" type="password" placeholder="Paste Gemini API Key..." class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs w-full sm:w-64 focus:outline-none focus:border-sky-500" />
-      <button onclick="saveKey()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg border border-slate-700">Save</button>
-    </div>
-  </header>
+  <header class="ol-header">
+  <div class="ol-brand"><div class="ol-logo" aria-hidden="true">OL</div><div><div class="ol-kicker">Operators Logic</div><h1 class="ol-heading">Interview Analyst</h1><p class="ol-subheading" id="statusBanner">Pixel Recorder share, transcripts and audio review</p></div></div>
+  <nav class="ol-nav" aria-label="Application modules"><a href="https://operatorslogicdorktool.netlify.app/" class="ol-nav-item">Research Pro</a><a href="./" class="ol-nav-item current" aria-current="page">Interview Analyst</a></nav>
+  <div class="ol-key"><label class="ol-key-label" for="apiKeyInput">Gemini API key <span id="keyStatus" aria-live="polite">Not set</span></label>
+    <div class="ol-key-controls"><input id="apiKeyInput" type="password" placeholder="Enter Gemini key" autocomplete="off" spellcheck="false"><button type="button" onclick="saveKey()" class="ol-save">Save</button><button type="button" onclick="clearKey()" class="ol-clear">Clear</button></div></div>
+</header>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <section class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col gap-3">
@@ -74,18 +88,32 @@
       </button>
     </div>
     <div id="aiResultBox" class="bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm whitespace-pre-wrap text-slate-300 min-h-[120px]">Awaiting statement transcript and/or audio payload...</div>
+    <p class="ol-notice">Interview guidance only. Language and vocal changes are leads, not proof of deception. AI processing sends provided materials to Gemini. Your key stays in this browser's local storage, so use a private device.</p>
   </section>
 
   <script>
     let currentAudioFile = null;
     let audioCtx, analyser, sourceNode;
 
-    const savedKey = localStorage.getItem('SA_GEMINI_KEY');
+    // Shared with Research Pro when both pages are served from one website.
+    const KEY_STORAGE = 'SA_GEMINI_KEY';
+    const savedKey = localStorage.getItem(KEY_STORAGE);
     if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+    function updateKeyStatus(){document.getElementById('keyStatus').textContent=localStorage.getItem(KEY_STORAGE)?'Ready':'Not set';}
     function saveKey() {
-      localStorage.setItem('SA_GEMINI_KEY', document.getElementById('apiKeyInput').value.trim());
-      alert('API Key saved locally on device.');
+      const key = document.getElementById('apiKeyInput').value.trim();
+      if (!key) return alert('Enter a Gemini API key first.');
+      localStorage.setItem(KEY_STORAGE, key);
+      updateKeyStatus();
+      alert('Gemini key saved for both modules on this website.');
     }
+    function clearKey(){
+      if(!confirm('Remove the saved Gemini key from this browser?'))return;
+      localStorage.removeItem(KEY_STORAGE);
+      document.getElementById('apiKeyInput').value='';
+      updateKeyStatus();
+    }
+    updateKeyStatus();
 
     function handleTxtUpload(e) {
       const f = e.target.files[0];
@@ -191,10 +219,10 @@
       const parts = [{
         text: `You are an expert criminal investigator trained in Scientific Content Analysis (SCAN), cognitive interview techniques, and vocal stress/deception detection. Analyze the provided statement transcript and/or audio recording.
 Provide:
-1. EXECUTIVE SUMMARY & RISK LEVEL (Low / Moderate / High indicators of withholding or fabrication)
+1. INTERVIEW SUMMARY (Describe observations without inferring lies or inventing risk percentages)
 2. LINGUISTIC INDICATORS (Pronoun drops, hedging/qualifiers, missing time text bridges, tense shifts, unprompted denials)
 3. ACOUSTIC / VOCAL INDICATORS (If audio provided: response latency, micro-pauses, pitch/pace shifts, vocal tension)
-4. TARGETED FOLLOW-UP QUESTIONS (Direct, non-leading questions to probe the exact time gaps or hedged phrases)`
+4. TARGETED FOLLOW-UP QUESTIONS (Neutral questions to clarify discrepancies and test alternative explanations)`
       }];
 
       if (text) parts.push({ text: `STATEMENT TRANSCRIPT:\n${text}` });
@@ -204,13 +232,14 @@ Provide:
       }
 
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify({ contents: [{ parts }] })
         });
         const data = await res.json();
-        out.textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data, null, 2);
+        if (!res.ok) throw new Error(data?.error?.message || ('Gemini HTTP ' + res.status));
+        out.textContent = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || 'No analysis returned.';
       } catch (err) {
         out.textContent = 'Error running scan: ' + err.message;
       }
